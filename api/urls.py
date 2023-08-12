@@ -14,4 +14,5 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("", include(router.urls)),
     path('get-token/', views.CustomAuthToken.as_view()),
+    path('history/', views.ListHistoryByPersonView.as_view()),
 ]

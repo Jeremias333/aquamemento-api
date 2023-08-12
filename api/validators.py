@@ -59,6 +59,20 @@ def info_create_validators(data):
     if existing_info:
         return JsonResponse({"message": "An Info object already exists for today."})
 
+    return True
 
+def info_list_by_person_validators(data):
+    if data.get('person_id') == None:
+        return JsonResponse({"message": "person_id field is required"})
+
+    if not isinstance(data.get('person_id'), int):
+        return JsonResponse({"message": "person_id field must be int"})
     
+    if data.get('person_id') <= 0:
+        return JsonResponse({"message": "person_id field must be positive"})
+
+    person = Person.objects.filter(id=data.get('person_id'))
+    if person.count() == 0:
+        return JsonResponse({"message": "Person passed into person_id field not found"})
+
     return True

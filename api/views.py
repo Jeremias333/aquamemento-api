@@ -1,6 +1,4 @@
 from django.shortcuts import render
-
-# Create your views here.
 from django.http import HttpResponse, JsonResponse
 from api.models import Info, Container, Person
 from django.contrib.auth.models import User, Group
@@ -11,10 +9,12 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-from api.validators import person_put_validators, info_create_validators
+from api import validators
+from rest_framework.views import APIView
+
 
 def index(request):
-    return JsonResponse({"message": "Hello, world!"})
+    return JsonResponse({"message": "It works!"})
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -37,13 +37,15 @@ class InfoViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         data = request.data
 
-        result = info_create_validators(data)
+        result = validators.info_create_validators(data)
         if result != True:
             return result
 
         person = Person.objects.filter(id=data.get('person_id')).first()
-        new_info = Info.objects.create(person=person, daily_goal=data.get('daily_goal'))
+        new_info = Info.objects.create(
+            person=person, daily_goal=data.get('daily_goal'))
         return JsonResponse({"message": "Created new info with id: {}" .format(new_info.id)})
+
 
 class ContainerViewSet(viewsets.ModelViewSet):
     queryset = Container.objects.all().order_by('title')
@@ -59,12 +61,13 @@ class PersonViewSet(viewsets.ModelViewSet):
     def put(self, request, *args, **kwargs):
         data = request.data
 
-        result = person_put_validators(data)
+        result = validators.person_put_validators(data)
         if result != True:
-            return result # will be JsonResponse
+            return result  # will be JsonResponse
 
         person = data.get('person_id')
-        Person.objects.filter(id=person).update(now_drink=data.get('now_drink'))
+        Person.objects.filter(id=person).update(
+            now_drink=data.get('now_drink'))
 
         return JsonResponse({"message": "Updated completed to person id: {}" .format(person)})
 
@@ -81,3 +84,37 @@ class CustomAuthToken(ObtainAuthToken):
             'user_id': user.pk,
             'email': user.email
         })
+
+
+class ListHistoryByPersonByDateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        data = request.data
+
+        result = validators.info_list_by_person_by_date_validators(data)
+        if result != True:
+            return result
+
+        person_id = data.get('person_id')
+        date = data.get('date')
+        infos = Info.objects.filter(
+            person=person_id, created_at__date=date).order_by('-created_at')
+        serializer = InfoSerializer(infos, many=True)
+        return Response(serializer.data)
+
+
+class ListHistoryByPersonView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        data = request.data
+
+        result = validators.info_list_by_person_validators(data)
+        if result != True:
+            return result
+
+        person_id = data.get('person_id')
+        infos = Info.objects.filter(person=person_id).order_by('-created_at')
+        serializer = InfoSerializer(infos, many=True, context={"request": request})
+        return JsonResponse({"infos": serializer.data})
