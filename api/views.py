@@ -11,8 +11,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-
-
+from api.validators import person_put_validators, info_create_validators
 
 def index(request):
     return JsonResponse({"message": "Hello, world!"})
@@ -35,6 +34,16 @@ class InfoViewSet(viewsets.ModelViewSet):
     serializer_class = InfoSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def create(self, request, *args, **kwargs):
+        data = request.data
+
+        result = info_create_validators(data)
+        if result != True:
+            return result
+
+        person = Person.objects.filter(id=data.get('person_id')).first()
+        new_info = Info.objects.create(person=person, daily_goal=data.get('daily_goal'))
+        return JsonResponse({"message": "Created new info with id: {}" .format(new_info.id)})
 
 class ContainerViewSet(viewsets.ModelViewSet):
     queryset = Container.objects.all().order_by('title')
@@ -46,6 +55,18 @@ class PersonViewSet(viewsets.ModelViewSet):
     queryset = Person.objects.all().order_by('name')
     serializer_class = PersonSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request, *args, **kwargs):
+        data = request.data
+
+        result = person_put_validators(data)
+        if result != True:
+            return result # will be JsonResponse
+
+        person = data.get('person_id')
+        Person.objects.filter(id=person).update(now_drink=data.get('now_drink'))
+
+        return JsonResponse({"message": "Updated completed to person id: {}" .format(person)})
 
 
 class CustomAuthToken(ObtainAuthToken):

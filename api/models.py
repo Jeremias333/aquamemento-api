@@ -18,4 +18,6 @@ class Container(models.Model):
 class Person(models.Model):
     name = models.CharField(max_length=30, unique=True, blank=False, null=False)
     kg = models.FloatField(null=False, blank=False)
+
+    # Above code is to archive the data of actual drinking info (Info model)
     now_drink = models.FloatField(null=False, blank=False, default=0)
