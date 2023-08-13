@@ -92,16 +92,20 @@ class ListHistoryByPersonByDateView(APIView):
     def get(self, request, *args, **kwargs):
         data = request.data
 
-        result = validators.info_list_by_person_by_date_validators(data)
-        if result != True:
+        result = validators.info_list_by_date_validators(data)
+        if type(result) == type(JsonResponse):
             return result
+        else:
+            date = result
+            
+        print(result)
 
         person_id = data.get('person_id')
-        date = data.get('date')
+
         infos = Info.objects.filter(
             person=person_id, created_at__date=date).order_by('-created_at')
-        serializer = InfoSerializer(infos, many=True)
-        return Response(serializer.data)
+        serializer = InfoSerializer(infos, many=True, context={"request": request})
+        return JsonResponse({"infos": serializer.data})
 
 
 class ListHistoryByPersonView(APIView):

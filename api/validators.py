@@ -1,6 +1,7 @@
 from django.http import HttpResponse, JsonResponse
 from api.models import Info, Person
 from django.utils import timezone
+from datetime import datetime
 
 def person_put_validators(data):
     if data.get('now_drink') == None:
@@ -76,3 +77,17 @@ def info_list_by_person_validators(data):
         return JsonResponse({"message": "Person passed into person_id field not found"})
 
     return True
+
+def info_list_by_date_validators(data):
+    if data.get('date') == None:
+        return JsonResponse({"error": "Date is required"})
+
+    if data.get('person_id') == None:
+        return JsonResponse({"error": "Person id is required"})
+
+    try:
+        date = datetime.strptime(data.get('date'), '%d/%m/%Y').date()
+    except ValueError:
+        return JsonResponse({"error": "Date format is not correct - try dd/mm/yyyy"})
+    print(type(JsonResponse({"date": date})))
+    return date
