@@ -26,7 +26,7 @@ class ContainerSerializer(serializers.HyperlinkedModelSerializer):
 class PersonSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Person
-        fields = ['name', 'kg']
+        fields = ['id', 'name', 'kg']
 
     def create(self, validated_data):
         name = validated_data.get('name')

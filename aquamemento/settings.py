@@ -29,8 +29,9 @@ SECRET_KEY = str(os.getenv('SECRET_KEY', 'secret'))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
+CORS_ORIGIN_ALLOW_ALL = False
 
 # Application definition
 
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'api',
     'rest_framework.authtoken',
+    'corsheaders',
 ]
 
 REST_FRAMEWORK = {
@@ -70,6 +72,22 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+#CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:3000"]
+CORS_ORIGIN_WHITELIST = (
+        'http://127.0.0.1:3000',
+)
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'PATCH',
+    'POST',
+    'PUT',
 ]
 
 ROOT_URLCONF = 'aquamemento.urls'

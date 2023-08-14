@@ -16,4 +16,6 @@ urlpatterns = [
     path('get-token/', views.CustomAuthToken.as_view()),
     path('history/by-person/', views.ListHistoryByPersonView.as_view()),
     path('history/by-date/', views.ListHistoryByPersonByDateView.as_view()),
+    path('calculate/daily-goal/', views.CalcDailyGoalView.as_view()),
+    path('calculate/remaining-goal/', views.CalcRemainingGoalView.as_view())
 ]

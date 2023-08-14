@@ -91,3 +91,36 @@ def info_list_by_date_validators(data):
         return JsonResponse({"error": "Date format is not correct - try dd/mm/yyyy"})
     print(type(JsonResponse({"date": date})))
     return date
+
+def calc_daily_goal_validators(data):
+    if data.get('kg') == None:
+        return JsonResponse({"error": "kg is required"})
+
+    if not isinstance(data.get('kg'), float):
+        return JsonResponse({"error": "kg must be float"})
+
+    if data.get('kg') <= 0:
+        return JsonResponse({"error": "kg must be positive"})
+
+    return True
+
+def calc_remaining_daily_goal_validators(data):
+    if data.get('daily_goal') == None:
+        return JsonResponse({"message": "daily_goal field is required"})
+    
+    if not isinstance(data.get('daily_goal'), float):
+        return JsonResponse({"message": "daily_goal field must be float"})
+    
+    if data.get('daily_goal') <= 0:
+        return JsonResponse({"message": "daily_goal field must be positive"})
+    
+    if data.get('drank') == None:
+        return JsonResponse({"message": "drank field is required"})
+    
+    if not isinstance(data.get('drank'), float):
+        return JsonResponse({"message": "drank field must be float"})
+    
+    if data.get('drank') <= 0:
+        return JsonResponse({"message": "drank field must be positive"})
+    
+    return True

@@ -122,3 +122,33 @@ class ListHistoryByPersonView(APIView):
         infos = Info.objects.filter(person=person_id).order_by('-created_at')
         serializer = InfoSerializer(infos, many=True, context={"request": request})
         return JsonResponse({"infos": serializer.data})
+
+class CalcDailyGoalView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        
+        result = validators.calc_daily_goal_validators(data)
+        if result != True:
+            return result
+        
+        kg = data.get('kg')
+
+        daily_goal = kg*35
+
+        return JsonResponse({"daily_goal": float(daily_goal)})
+
+class CalcRemainingGoalView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+
+        result = validators.calc_remaining_daily_goal_validators(data)
+        if result != True:
+            return result
+
+        remaining_goal = float(data.get('daily_goal') - data.get('drank'))
+
+        return JsonResponse({"remaining_goal": remaining_goal})
