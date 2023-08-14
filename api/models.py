@@ -20,4 +20,4 @@ class Person(models.Model):
     kg = models.FloatField(null=False, blank=False)
 
     # Above code is to archive the data of actual drinking info (Info model)
-    now_drink = models.FloatField(null=False, blank=False, default=0)
+    now_drink = models.IntegerField(null=False, blank=False, default=0)

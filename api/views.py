@@ -44,6 +44,9 @@ class InfoViewSet(viewsets.ModelViewSet):
         person = Person.objects.filter(id=data.get('person_id')).first()
         new_info = Info.objects.create(
             person=person, daily_goal=data.get('daily_goal'))
+
+        person.now_drink = new_info.id
+        person.save()
         return JsonResponse({"message": "Created new info with id: {}" .format(new_info.id)})
 
 
@@ -97,14 +100,13 @@ class ListHistoryByPersonByDateView(APIView):
             return result
         else:
             date = result
-            
-        print(result)
 
         person_id = data.get('person_id')
 
         infos = Info.objects.filter(
             person=person_id, created_at__date=date).order_by('-created_at')
-        serializer = InfoSerializer(infos, many=True, context={"request": request})
+        serializer = InfoSerializer(
+            infos, many=True, context={"request": request})
         return JsonResponse({"infos": serializer.data})
 
 
@@ -120,24 +122,27 @@ class ListHistoryByPersonView(APIView):
 
         person_id = data.get('person_id')
         infos = Info.objects.filter(person=person_id).order_by('-created_at')
-        serializer = InfoSerializer(infos, many=True, context={"request": request})
+        serializer = InfoSerializer(
+            infos, many=True, context={"request": request})
         return JsonResponse({"infos": serializer.data})
+
 
 class CalcDailyGoalView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         data = request.data
-        
+
         result = validators.calc_daily_goal_validators(data)
         if result != True:
             return result
-        
+
         kg = data.get('kg')
 
         daily_goal = kg*35
 
         return JsonResponse({"daily_goal": float(daily_goal)})
+
 
 class CalcRemainingGoalView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -153,6 +158,7 @@ class CalcRemainingGoalView(APIView):
 
         return JsonResponse({"remaining_goal": remaining_goal})
 
+
 class CalcRemainingPercentGoalView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -163,6 +169,27 @@ class CalcRemainingPercentGoalView(APIView):
         if result != True:
             return result
 
-        remaining_percent = float((data.get('drank') / data.get('daily_goal')) * 100)
+        remaining_percent = float(
+            (data.get('drank') / data.get('daily_goal')) * 100)
 
         return JsonResponse({"remaining_percent": remaining_percent})
+
+
+class ConsumeDrinkView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request, *args, **kwargs):
+        data = request.data
+
+        result = validators.consume_drink_validators(data)
+        if result != True:
+            return result
+
+        person_id = data.get('person_id')
+        person = Person.objects.filter(id=person_id).first()
+        info = Info.objects.filter(id=person.now_drink).first()
+
+        info.drank = info.drank + data.get('drink')
+        info.save()
+
+        return JsonResponse({"message": "Person {} consumed {}ml" .format(person_id, data.get('drink'))})
