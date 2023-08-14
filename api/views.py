@@ -152,3 +152,17 @@ class CalcRemainingGoalView(APIView):
         remaining_goal = float(data.get('daily_goal') - data.get('drank'))
 
         return JsonResponse({"remaining_goal": remaining_goal})
+
+class CalcRemainingPercentGoalView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+
+        result = validators.calc_remaining_percent_goal_validators(data)
+        if result != True:
+            return result
+
+        remaining_percent = float((data.get('drank') / data.get('daily_goal')) * 100)
+
+        return JsonResponse({"remaining_percent": remaining_percent})

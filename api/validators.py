@@ -124,3 +124,24 @@ def calc_remaining_daily_goal_validators(data):
         return JsonResponse({"message": "drank field must be positive"})
     
     return True
+
+def calc_remaining_percent_goal_validators(data):
+    if data.get('daily_goal') == None:
+        return JsonResponse({"message": "daily_goal field is required"})
+    
+    if not isinstance(data.get('daily_goal'), float):
+        return JsonResponse({"message": "daily_goal field must be float"})
+    
+    if data.get('daily_goal') <= 0:
+        return JsonResponse({"message": "daily_goal field must be positive"})
+    
+    if data.get('drank') == None:
+        return JsonResponse({"message": "drank field is required"})
+    
+    if not isinstance(data.get('drank'), float):
+        return JsonResponse({"message": "drank field must be float"})
+    
+    if data.get('drank') <= 0:
+        return JsonResponse({"message": "drank field must be positive"})
+    
+    return True
