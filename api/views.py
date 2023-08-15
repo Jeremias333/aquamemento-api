@@ -113,7 +113,7 @@ class ListHistoryByPersonByDateView(APIView):
 class ListHistoryByPersonView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         data = request.data
 
         result = validators.info_list_by_person_validators(data)
@@ -191,5 +191,15 @@ class ConsumeDrinkView(APIView):
 
         info.drank = info.drank + data.get('drink')
         info.save()
+
+        print(info.drank)
+        print(info.daily_goal)
+
+        if info.drank >= info.daily_goal:
+            print("Entrei aqui")
+            info.reached_goal = True
+            info.save()
+
+        print("passei direto")
 
         return JsonResponse({"message": "Person {} consumed {}ml" .format(person_id, data.get('drink'))})

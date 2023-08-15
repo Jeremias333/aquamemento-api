@@ -148,7 +148,7 @@ LANGUAGE_CODE = 'en-us'
 
 #TIME_ZONE = 'America/Chicago'
 
-#TIME_ZONE = 'Pacific/Tongatapu'
+# TIME_ZONE = 'Pacific/Tongatapu'
 
 TIME_ZONE = 'America/Sao_Paulo'
 
